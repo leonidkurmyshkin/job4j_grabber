@@ -21,6 +21,18 @@
                 <db.driver>org.postgresql.Driver</db.driver>
             </properties>
         </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <db.url>jdbc:h2:${basedir}/testdb;MODE=PostgreSQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;</db.url>
+                <db.username></db.username>
+                <db.password></db.password>
+                <db.driver>org.h2.Driver</db.driver>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
 
     <properties>
@@ -61,6 +73,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
