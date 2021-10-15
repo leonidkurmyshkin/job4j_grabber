@@ -16,6 +16,14 @@ import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
+    private final Properties config;
+    private final Connection cn;
+
+    public AlertRabbit(Properties config, Connection cn) {
+        this.config = config;
+        this.cn = cn;
+    }
+
     public static Connection initConnection(Properties config) throws Exception {
         Class.forName(config.getProperty("driver-class-name"));
         return DriverManager.getConnection(
@@ -43,23 +51,29 @@ public class AlertRabbit {
         public void execute(JobExecutionContext context) throws JobExecutionException {
             System.out.println("Rabbit runs here ...");
             var store = (Connection) context.getJobDetail().getJobDataMap().get("store");
+            var schema = (String) context.getJobDetail().getJobDataMap().get("schema");
+            insertJobTime(store, schema);
+        }
+
+        private void insertJobTime(Connection store, String schema) {
             try (var ps = store.prepareStatement(
-                    "INSERT INTO rabbit(created_date) VALUES (?);")) {
+                    "INSERT INTO %s.rabbit(created_date) VALUES (?);"
+                            .formatted(schema))) {
                 ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-                ps.executeUpdate();
+                ps.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static Scheduler schedulerStart(Connection cn, Properties config) throws SchedulerException {
+    public Scheduler schedulerStart() throws SchedulerException {
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
         JobDataMap store = new JobDataMap();
         store.put("store", cn);
         JobDetail job = newJob(Rabbit.class)
                 .usingJobData(store)
+                .usingJobData("schema", config.getProperty("rabbit.schema"))
                 .build();
         SimpleScheduleBuilder times = simpleSchedule()
                 .withIntervalInSeconds(Integer.parseInt(config.getProperty("rabbit.interval")))
@@ -69,6 +83,7 @@ public class AlertRabbit {
                 .withSchedule(times)
                 .build();
         scheduler.scheduleJob(job, trigger);
+        scheduler.start();
         return scheduler;
     }
 
@@ -76,7 +91,7 @@ public class AlertRabbit {
         try {
             Properties config = readConfig("rabbit.properties");
             try (Connection cn = initConnection(config)) {
-                Scheduler scheduler = schedulerStart(cn, config);
+                var scheduler = new AlertRabbit(config, cn).schedulerStart();
                 Thread.sleep(10000);
                 scheduler.shutdown();
             }
