@@ -23,7 +23,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
 
     @Override
     public LocalDateTime parse(String text) {
-        var textParts = text.split(",\s*");
+        var textParts = text.split(",\s+");
         return LocalDateTime.of(parseDate(textParts[0]), LocalTime.parse(textParts[1]));
     }
 
@@ -32,7 +32,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
             case "сегодня" -> LocalDate.now();
             case "вчера" -> LocalDate.now().minusDays(1);
             default -> {
-                var dateParts = textDate.split("\s*");
+                var dateParts = textDate.split("\s+");
                 yield  LocalDate.of(
                         2000 + Integer.parseInt(dateParts[2]),
                         MONTHS.get(dateParts[1]),

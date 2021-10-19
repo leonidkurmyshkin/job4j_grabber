@@ -14,7 +14,7 @@ public class SqlRuParse {
         String title = vacancy.selectFirst(".messageHeader").ownText();
         String description = vacancy.select(".msgBody").get(1).text();
         String created = vacancy.selectFirst(".msgFooter").ownText()
-                .split("\s*\\[", 2)[0];
+                .split("\s+\\[", 2)[0];
         System.out.printf("%s%n%s%n%s%n%s%n%n", title, description, url, created);
     }
 
