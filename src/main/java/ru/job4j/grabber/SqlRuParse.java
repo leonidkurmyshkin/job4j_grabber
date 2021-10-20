@@ -41,7 +41,7 @@ public class SqlRuParse implements Parse {
             Element vacancy = Jsoup.connect(link).get()
                     .selectFirst(".msgTable");
             String title = vacancy.selectFirst(".messageHeader").ownText();
-            String description = vacancy.select(".msgBody").get(1).text();
+            String description = vacancy.select(".msgBody").get(1).ownText();
             LocalDateTime created = dateTimeParser.parse(
                     vacancy.selectFirst(".msgFooter").ownText()
                             .split("\s+\\[", 2)[0]);
