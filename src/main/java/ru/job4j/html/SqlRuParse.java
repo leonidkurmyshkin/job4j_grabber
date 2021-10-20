@@ -12,7 +12,7 @@ public class SqlRuParse {
         Document doc = Jsoup.connect(url).get();
         Element vacancy = doc.selectFirst(".msgTable");
         String title = vacancy.selectFirst(".messageHeader").ownText();
-        String description = vacancy.select(".msgBody").get(1).text();
+        String description = vacancy.select(".msgBody").get(1).ownText();
         String created = vacancy.selectFirst(".msgFooter").ownText()
                 .split("\s+\\[", 2)[0];
         System.out.printf("%s%n%s%n%s%n%s%n%n", title, description, url, created);
