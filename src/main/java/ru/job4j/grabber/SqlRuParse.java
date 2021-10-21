@@ -52,7 +52,6 @@ public class SqlRuParse implements Parse {
     }
 
     public static void main(String[] args) {
-        var startUrl = "https://www.sql.ru/forum/job-offers/%d";
         List<Post> posts = new SqlRuParse(new SqlRuDateTimeParser())
                 .list("https://www.sql.ru/forum/job-offers/1");
         posts.forEach(System.out::println);

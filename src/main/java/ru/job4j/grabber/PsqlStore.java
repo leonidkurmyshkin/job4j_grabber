@@ -1,8 +1,8 @@
 package ru.job4j.grabber;
 
+import ru.job4j.grabber.utils.Config;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +22,6 @@ public class PsqlStore implements Store, AutoCloseable {
                     config.getProperty("password"));
         } catch (Exception e) {
             throw new IllegalStateException();
-        }
-    }
-
-    public static Properties readConfig(String fileName) throws IOException {
-        try (var in = PsqlStore.class.getClassLoader().getResourceAsStream(fileName)) {
-            Properties config = new Properties();
-            config.load(in);
-            return config;
-        } catch (IOException e) {
-            throw new IOException("Файл %s с настройками не найден.".formatted(fileName));
         }
     }
 
@@ -102,7 +92,7 @@ public class PsqlStore implements Store, AutoCloseable {
 
     public static void main(String[] args) {
         try {
-            var store = new PsqlStore(readConfig("grabber.properties"));
+            var store = new PsqlStore(Config.read("grabber.properties"));
             List<Post> posts = new SqlRuParse(new SqlRuDateTimeParser())
                     .list("https://www.sql.ru/forum/job-offers/1");
             store.save(posts.get(0));
